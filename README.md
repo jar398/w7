@@ -33,9 +33,3 @@ To run:
 4. ``,in scratch``
 
 Welcome to jail!
-
-Regarding the LICENSE file - this is work in progress.  I think it's
-silly to put any license terms such as attribution on this code, so
-I've applied CC0.  But for completely stupid reasons CC0 isn't OSI
-compliant.  In the future I may revise LICENSE to bow to OSI's
-foolishness.
