@@ -1,0 +1,249 @@
+
+Hey repo followers (Mark, Jae-Woo) and other stumblers-upon... I'm
+just putting this document here for access by those who might want to
+help give friendly comments to make it better.  It's not ready yet for
+a wider audience.
+
+Friendly commenters can submit issues or PRs.  The ones I act on them
+will lead to acks (if minor) or coauthorship (if major).
+
+If you submit issues or PRs without granting permission for me to use
+them to improve the writeup, you hereby ... might make life difficult
+for me.
+
+[not formatted yet... I'm thinking I'll prepare it for wordpress and
+put it on my blog]
+
+----------
+
+Note on object-capability protection primitives
+
+Programming languages such as E, Secure Ecmascript, and Scheme-
+(Scheme minus, sometimes called w7)
+that are committed to 'object-capability discipline' are characterized
+more for what they prevent (undesired use of access) than for what
+features they have, although of course the former can permit the
+latter, such as program execution with reduced risk of accidental or
+intentional compromise.  The nature of these restriction mechanisms
+therefore deserves some examination, out of an interest in economy of
+formulation and in understanding the attack surface.
+
+[links - erights.org, SES, security kernel]
+
+(I'd like to clarify that the kind of protection I'm talking about is
+protecting physical resources and sensitive information from attacks
+and mistakes.  DRM and other 'defenses' against someone who is trying
+to use a device that they would otherwise own (e.g. an automobile or a
+video player), in my opinion, puts the owner of the device into an
+abusive relationship with the device's manufacturer/vendor/author, who
+is typically much more powerful than the owner.  If you're running a
+program on a device you own, you should, as a matter of political
+fairness, be able to see and modify its source code.)
+
+[link: https://www.defectivebydesign.org/ ]
+
+We see two primitive protection mechanisms in these languages:
+
+ * Objects (equivalently: procedures, actors) that
+   are opaque except as explicited allowed by a public interface
+   (well, public to anyone who 'has' the object).
+   This is how 'programmed rights attenuation', the central idea of
+   capability architecture, is accomplished.
+
+ * Objects that are fully opaque ('sealed') except through use of a
+   special protectable accessor (the 'unsealer').  This allows the
+   transmission of object references (the 'sealed' ones) through
+   untrusted channels.  Recovering the original reference by combining
+   the object with the accessor is called
+   'rights amplification'.
+
+I'm going to use 'object' in an unexamined way similar to how it's
+used in E, meaning anything the language traffics in at run time.
+I'll call objects created by 'seal' 'sealed objects' and those created
+in the usual way by defining methods... uh... how about 'attenuators'
+since 'object' is more general.
+
+Attenuators are described in many places [same refs as above].  The
+seal/unseal idea is explained in Morris 1973 [James H. Morris,
+Jr. Protection in Programming Languages, Communications of the ACM ,
+16(1):15–21, 1973], and is similar to encapsulation mechanisms for
+abstract data types such as rep and abs in CLU.  A sealer/unsealer
+pair is also analogous in many ways to a cryptographic public/private
+key pair.  This post is aimed at those who already are familiar with
+these ideas.
+
+[links: 
+https://en.wikipedia.org/wiki/CLU_(programming_language),
+MSM dissertation https://jscholarship.library.jhu.edu/bitstream/handle/1774.2/873/markm-thesis.pdf,
+https://doi.org/10.1145/361932.361937 , paywalled
+etc.]
+
+The question arises: why do we have two protection constructs instead
+of one?
+
+1. Is seal/unseal really necessary, given attenuators?
+
+Sometimes sealed objects received skepticism because they appear
+similar to ACLs: the unsealer is like the right to be someone who is
+authorized to use the sealed object, and unseal checks to see whether
+that authority is present before proceeding, just as in an ACL based
+architecture.  But in the ocap pattern, authorization is supposed to
+happen when the object is obtained in the first place.  The sealed
+object confers no rights without the unsealer; it is essentially
+similar to a name.  Why doesn't this lead to confused deputy
+vulnerabilities, as ocap theory would predict, and why isn't simple
+access to the object adequate?
+
+Consider the following scenario: an agent (or object) A does something
+useful with collections of C-like objects, e.g. it performs an
+expensive or tricky operation like indexing or theorem proving, but B
+does not trust A with a reference to C.
+
+[maybe replace A, B, ... with Alice, Bob, ...]
+
+[link: mutual suspicion = Schroeder MAC TR-104 1972]
+
+I know of three broad approaches to this problem: auditing,
+confinement, and substitution.
+
+Auditing: Maybe B has a way to read source code (such as A's) to check
+it for harmlessness to B.  Then, if B has a trusted way to get A's
+code, it can run this check.  If it passes, fine.  If it doesn't, then
+the problem remains: A does something that B needs done, and an
+interface needs to be negotiated.
+
+[link:  something on erights ??  my article also touches on auditing.]
+
+Static type checking is similar to auditing, and can sometimes confer
+security guarantees.  The comparison to generics (as in e.g. Java) is
+instructive: A is similar to a generic class that we don't trust, but
+Java type checking we're satisfied that we can safely instantiate over
+D's type; this is because D is encapsulated so that it does not expose
+C to A.  If B knows that A type-checks, it should be OK using it.
+
+Confinement: If C has no methods that A cares about (e.g. no
+unpleasant side-effects to A), then 'mandatory' confinement of A is an
+option: B might be able to make its own copy A' of A and use A' in
+place of an unconfined A, unconnected to channels that might allow an
+undesired leak.  This works when B's information security is the main
+concern, but not when C might control physical devices that B cares
+about.  Confinement is similar to the choice to run a local copy of
+some software rather than use a service provided by someone else.
+
+[link: JAR security kernel http://hdl.handle.net/1721.1/5944 ]
+
+Substitution: Otherwise, B must give A something else in place of C, say D.
+D is designed so that its use by A cannot cause serious harm to
+anything B cares about.  A then returns the result R to B, which can
+be a structure containing D.
+
+It is useful, however, for B to be able to invert the C-to-D
+conversion so that it can do something with the correct C whenever it
+finds a D in R.  Secure seal/unseal is just a way to set up a safe 1-1
+correspondence between the C's and the D's, although there are others
+such as tables (which rely on some comparison mechanism - which may
+need to be primitive, lump under rug).  The correspondence is for B's
+use and is unseen by A.
+
+So far the answer seems to be that the two primitives are different,
+but we need either an argument that one primitive is definable from
+the other, or an argument that both are necessary.  Because of the
+limitations of auditing and confinement, which are usually not
+practical, I will focus on substitution.
+
+[Musing: this 'untrusted channel' issue is not mentioned in cap myths:
+http://srl.cs.jhu.edu/pubs/SRL2003-02.pdf but I'm thinking perhaps its
+neglect in ocap-land might be related to some amount of latent
+hostility against capabilities ?? ]
+
+2. Can attenuators be implemented in terms of seal/unseal?
+
+Assuming a collection of transparent (unprotected) datatypes such as
+strings, lists, and tables, we can program an interpreter or compiler
+for our language.  The program, or the output of a compiler, can then
+be sealed along with the attenuated resources (environment), and the
+object invocation operator can unseal it to get at the compiled
+program and its attenuated resources.
+
+Implementing attenuators as sealed objects is effectively what many
+programming languages (those that have first class objects or
+functions) do - the objects/functions belong to a low-level
+implementation-supported abstract data type with invocation being a
+kernel operation.
+
+Access to the operator that gives access to the output of the compiler
+must be privileged somehow, if the target language has any power
+beyond what the source language has (as, say, machine language
+programs generally do).  So we have merely traded one kernel primitive
+for another.
+
+3. Can seal/unseal be implemented in terms of attenuators?
+
+The only thing one does with any object in these languages is to
+'invoke' it, and that's done by providing a 'message' comprising a
+'verb' (some authors say 'name') and 'arguments'.  An object is able
+to observe the messages it receives, thus opening up the possibility
+of man in the middle (MITM) attacks (e.g. by A above).  For example, a
+message might be an authentication challenge (unseal), in which case
+if a legitimate recipient is replaced by an attacker, the attacker
+could use the legitimate recipient to provide a response,
+but then pass the response through and proceed to spy on subsequent
+messages, using arguments and responses as it pleases and perhaps
+responding with different responses, all without the original caller
+knowing.
+
+Therefore, references to attenuators are not suitable for transmission
+over channels (stored into data structures, etc.) managed by untrusted
+parties.  To me this says that attenuators cannot always stand in for
+sealed objects in current systems.
+
+A way out?
+
+It seems to me that with a bit of care and some mostly compatible
+modifications, we can define seal/unseal in terms of message dispatch,
+when dispatch is built into the attenuation primitive as it is in E.
+In Scheme- message dispatch is not primitive and the following won't
+work.
+
+The MITM attack is enabled by an object's ability to observe incoming
+messages.  If the message cannot be observed or captured, but only
+used directly by the kernel to choose and invoke a method, then the
+MITM attack is thwarted and an attenuator can be used to implement
+sealing.  An object cannot respond to a message whose verb it does not
+already 'know'.  So the sealed object can simply define an unseal
+method with an unguessable token as a verb.  Only the unsealer knows
+that verb, so only it can unseal.
+
+This gets more complicated when the message is transmitted over a
+network, since we don't want to transmit the private key/verb to the
+recipient without protecting it against access by the recipient, but I
+think it should be possible to overcome thiscryptographically (left as
+an exercise for someone good at that kind of thing).
+
+This idea has a precursor in the 'anonymous operations' in the T
+programming language, circa 1981.  In that design the verbs are not
+strings or symbols, but rather 'anonymous' objects that might be
+protected.
+
+[link: https://people.csail.mit.edu/riastradh/t/adams82t.pdf ]
+
+I haven't tried this.  Did I make a mistake?  Do you think the idea
+will work?  Do you think it's a kludge?  If you think it's too
+limiting (there are cool things you can do if messages can be hacked
+en route), are you happy to embrace seal/unseal as an independent
+primitive?
+
+Thanks to Norm Hardy, who raised the question of definability of
+seal/unseal in an email exchange with me in 2016.
+
+----------
+
+TBD: maybe answer the question posed about confused deputy
+vulnerability??  feels obvious.
+
+TBD: MSM writes in his dissertation that Morris wrote about
+"trademarks" or the ocap analog of cryptographic signing.  Pretty sure
+this can be derived, but should look into it.
+
+TBD: 'capability myths' should be linked, not sure exactly how to rope
+it into service though.
