@@ -4,15 +4,15 @@ just putting this document here for access by those who might want to
 help give friendly comments to make it better.  It's not ready yet for
 a wider audience.
 
-Friendly commenters can submit issues or PRs.  The ones I act on them
-will lead to acks (if minor) or coauthorship (if major).
+Friendly commenters can submit issues or PRs.  The submissions I act
+on will lead to acknowledgments (if minor) or coauthorship (if major).
 
 If you submit issues or PRs without granting permission for me to use
 them to improve the writeup, you hereby ... might make life difficult
 for me.
 
 [not formatted yet... I'm thinking I'll prepare it for wordpress and
-put it on my blog]
+put it on my blog...  or convert to markdown and leave on github ...]
 
 ----------
 
@@ -151,11 +151,6 @@ the other, or an argument that both are necessary.  Because of the
 limitations of auditing and confinement, which are usually not
 practical, I will focus on substitution.
 
-[Musing: this 'untrusted channel' issue is not mentioned in cap myths:
-http://srl.cs.jhu.edu/pubs/SRL2003-02.pdf but I'm thinking perhaps its
-neglect in ocap-land might be related to some amount of latent
-hostility against capabilities ?? ]
-
 2. Can attenuators be implemented in terms of seal/unseal?
 
 Assuming a collection of transparent (unprotected) datatypes such as
@@ -227,11 +222,21 @@ protected.
 
 [link: https://people.csail.mit.edu/riastradh/t/adams82t.pdf ]
 
+Coda
+
 I haven't tried this.  Did I make a mistake?  Do you think the idea
 will work?  Do you think it's a kludge?  If you think it's too
 limiting (there are cool things you can do if messages can be hacked
 en route), are you happy to embrace seal/unseal as an independent
 primitive?
+
+Musing: this 'untrusted channel' issue is not mentioned in cap myths:
+http://srl.cs.jhu.edu/pubs/SRL2003-02.pdf but I'm thinking perhaps its
+neglect in ocap-land might be somehow related to the software world's
+reservoir of hostility to capabilities?  We're wringing our hands
+wondering why nobody is listening, and maybe this idea, lost in the
+ACL/cap design space in-between limbo, could eventually end up
+pointing at an answer?  Mere speculation.
 
 Thanks to Norm Hardy, who raised the question of definability of
 seal/unseal in an email exchange with me in 2016.
