@@ -1,18 +1,62 @@
 
-Hey repo followers (Mark, Jae-Woo) and other stumblers-upon... I'm
-just putting this document here for access by those who might want to
-help give friendly comments to make it better.  It's not ready yet for
-a wider audience.
+Hey repo followers and other stumblers-upon... I'm putting this
+document here for access by those who might want to help give friendly
+comments to make it better.  It's not ready yet for a wider audience.
+Still unstable, under development.  Do not cite.
 
 Friendly commenters can submit issues or PRs.  The submissions I act
 on will lead to acknowledgments (if minor) or coauthorship (if major).
 
 If you submit issues or PRs without granting permission for me to use
 them to improve the writeup, you hereby ... might make life difficult
-for me.
+for me.  I will probably license CC-BY.
 
-[not formatted yet... I'm thinking I'll prepare it for wordpress and
-put it on my blog...  or convert to markdown and leave on github ...]
+not formatted yet... I'm thinking I'll prepare it for wordpress and
+put it on my blog...  or convert to markdown and leave on github ...
+
+I may touch on issues well known to ocappers who are better informed
+than me.  Not sure how to research - will rely on my reviewers.
+
+TBD: Reread 
+http://www.cap-lore.com/CapTheory/Language/Scheme/Abstraction.html
+and figure out what to say about it.
+
+Norm said he was going to write up the following code, but I can't
+find where he did.
+
+    From: Norman Hardy
+    Date: 10 May 2016
+    Here is my version of Marc's version of Morris's primitive — a
+    creator of matched sealer-unsealer pairs:
+
+    (define (pgen)  (let ((thePayload '()) (hasPayload #f))
+      (cons (lambda (payload) (lambda () (set! thePayload payload) (set! hasPayload #t)))
+            (lambda (box) (set! hasPayload #f) (box) (if hasPayload thePayload #f)))))
+
+    A sampler of its use:
+
+    (let* ((p (pgen)) (b2 ((car p) 42)) (b3 ((car p) 43)))
+       (cons ((cdr p) b2) ((cdr p) b3))) ; => (42 . 43)
+
+    That's the most Scheme I have written in nearly a year.
+    I am writing it up for my web site.
+
+TBD: maybe answer the question posed about confused deputy
+vulnerability??  feels obvious that it's not an issue.
+
+TBD: MSM writes in his dissertation that Morris wrote about
+"trademarks" or the ocap analog of cryptographic signing.  Pretty sure
+this can be derived, but should look into it.
+
+TBD: compare seal/unseal to the primitive 'stamps' described in the
+MSM/KPY auditing article... just came across this.
+
+TBD: 'capability myths' article should be linked, not sure exactly how
+to rope it into service though.
+http://srl.cs.jhu.edu/pubs/SRL2003-02.pdf
+
+TBD: link to
+https://mumble.net/~jar/pubs/scheme-of-things/opaque-types.pdf
 
 ----------
 
@@ -30,15 +74,15 @@ formulation and in understanding the attack surface.
 
 [links - erights.org, SES, security kernel]
 
-(I'd like to clarify that the kind of protection I'm talking about is
-protecting physical resources and sensitive information from attacks
-and mistakes.  DRM and other 'defenses' against someone who is trying
-to use a device that they would otherwise own (e.g. an automobile or a
-video player), in my opinion, puts the owner of the device into an
-abusive relationship with the device's manufacturer/vendor/author, who
-is typically much more powerful than the owner.  If you're running a
-program on a device you own, you should, as a matter of political
-fairness, be able to see and modify its source code.)
+(The kind of protection I have in mind is protecting physical
+resources and sensitive information from attacks and mistakes.  DRM
+and other 'defenses' against someone using a device that they would
+otherwise own (e.g. an automobile or a video player), in my opinion,
+puts the owner of the device into an abusive relationship with the
+device's manufacturer/vendor/author, who is typically much more
+powerful than the owner.  If a device you own is running a program,
+you should, as a matter of political equity, be able to see and modify
+its source code.)
 
 [link: https://www.defectivebydesign.org/ ]
 
@@ -67,7 +111,7 @@ Attenuators are described in many places [same refs as above].  The
 seal/unseal idea is explained in Morris 1973 [James H. Morris,
 Jr. Protection in Programming Languages, Communications of the ACM ,
 16(1):15–21, 1973], and is similar to encapsulation mechanisms for
-abstract data types such as rep and abs in CLU.  A sealer/unsealer
+abstract data types, such as `rep` and `abs` in CLU.  A sealer/unsealer
 pair is also analogous in many ways to a cryptographic public/private
 key pair.  This post is aimed at those who already are familiar with
 these ideas.
@@ -112,7 +156,8 @@ code, it can run this check.  If it passes, fine.  If it doesn't, then
 the problem remains: A does something that B needs done, and an
 interface needs to be negotiated.
 
-[link:  something on erights ??  my article also touches on auditing.]
+[link: ?? http://www.erights.org/elang/kernel/auditors/
+my diss chapter also touches on auditing.]
 
 Static type checking is similar to auditing, and can sometimes confer
 security guarantees.  The comparison to generics (as in e.g. Java) is
@@ -222,33 +267,12 @@ protected.
 
 [link: https://people.csail.mit.edu/riastradh/t/adams82t.pdf ]
 
-Coda
-
 I haven't tried this.  Did I make a mistake?  Do you think the idea
 will work?  Do you think it's a kludge?  If you think it's too
 limiting (there are cool things you can do if messages can be hacked
 en route), are you happy to embrace seal/unseal as an independent
 primitive?
 
-Musing: this 'untrusted channel' issue is not mentioned in cap myths:
-http://srl.cs.jhu.edu/pubs/SRL2003-02.pdf but I'm thinking perhaps its
-neglect in ocap-land might be somehow related to the software world's
-reservoir of hostility to capabilities?  We're wringing our hands
-wondering why nobody is listening, and maybe this idea, lost in the
-ACL/cap design space in-between limbo, could eventually end up
-pointing at an answer?  Mere speculation.
-
 Thanks to Norm Hardy, who raised the question of definability of
 seal/unseal in an email exchange with me in 2016.
-
-----------
-
-TBD: maybe answer the question posed about confused deputy
-vulnerability??  feels obvious.
-
-TBD: MSM writes in his dissertation that Morris wrote about
-"trademarks" or the ocap analog of cryptographic signing.  Pretty sure
-this can be derived, but should look into it.
-
-TBD: 'capability myths' should be linked, not sure exactly how to rope
-it into service though.
+end
